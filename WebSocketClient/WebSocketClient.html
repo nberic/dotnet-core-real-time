@@ -106,6 +106,7 @@
                         <td> Client </td>
                         <td> ${ htmlEscape(data) } </td>
                     </tr>`;
+            }
         };
 
         const htmlEscape = (str) => str
@@ -118,19 +119,19 @@
 
         const updateState = () => {
             const disable = () => {
-                sendMessage.disable = true;
-                sendButton.disable = true;
-                closeButton.disable = true;
-                recipents.disable = true;
+                sendMessage.disabled = true;
+                sendButton.disabled = true;
+                closeButton.disabled = true;
+                recipents.disabled = true;
             };
             const enable = () => {
-                sendMessage.disable = false;
-                sendButton.disable = false;
-                closeButton.disable = false;
-                recipents.disable = false;
+                sendMessage.disabled = false;
+                sendButton.disabled = false;
+                closeButton.disabled = false;
+                recipents.disabled = false;
             };
-            connectionUrl.disable = true;
-            connectButton.disable = true;
+            connectionUrl.disabled = true;
+            connectButton.disabled = true;
             if (!socket) {
                 disable();
             }
@@ -140,8 +141,8 @@
                         stateLabel.innerHTML = "Closed";
                         connId.innerHTML = "ConnID: N / A";
                         disable();
-                        connectionUrl.disable = false;
-                        connectButton.disable = false;
+                        connectionUrl.disabled = false;
+                        connectButton.disabled = false;
                         break;
                     case WebSocket.CLOSING:
                         stateLabel.innerHTML = "Closing...";
@@ -153,6 +154,8 @@
                         break;
                     default:
                         stateLabel.innerHTML = `Unknown WebSocket State ${ htmlEscape(socket.readyState) }`;
+                        disable();
+                        break;
                 }
 
             }

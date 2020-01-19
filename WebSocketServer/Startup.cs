@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +36,19 @@ namespace WebSocketServer
                 {
                     WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     System.Console.WriteLine("WebSocket connected.");
+
+                    await ReceiveMessage(webSocket, async (result, buffer) => {
+                        if (result.MessageType == WebSocketMessageType.Text)
+                        {
+                            System.Console.WriteLine("Message received.");
+                            return;
+                        }
+                        else if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            System.Console.WriteLine("Received Close message.");
+                            return;
+                        }
+                    });
                 }
             });
 
@@ -57,6 +71,18 @@ namespace WebSocketServer
                 {
                     System.Console.WriteLine($"--> { header.Key } : { header.Value }");
                 }
+            }
+        }
+
+        private async Task ReceiveMessage(WebSocket socket, Action<WebSocketReceiveResult, byte[]> handleMessage)
+        {
+            var buffer = new byte[1024 * 4];
+            while (socket.State == WebSocketState.Open)
+            {
+                var result = await socket.ReceiveAsync(
+                    buffer: new ArraySegment<byte>(buffer),
+                    cancellationToken: CancellationToken.None);
+                handleMessage(result, buffer);
             }
         }
     }
